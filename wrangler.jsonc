@@ -1,0 +1,11 @@
+{
+  "name": "47training",
+  "compatibility_date": "2025-05-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
