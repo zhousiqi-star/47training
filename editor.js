@@ -1,6 +1,6 @@
 /* ==========================================================================
    视频数据生成器
-   填表 → 实时预览封面 → 生成可直接粘贴进 data/videos.js 的代码
+   填表 → 实时预览封面 → 生成可直接粘贴进 videos.js 的代码
    ========================================================================== */
 
 (function () {
@@ -365,7 +365,7 @@
       idNote.textContent = '编辑已有条目时 id 不能改，改了会变成新增一条';
       idNote.className = 'field-note';
     } else if (dup) {
-      idNote.textContent = '⚠ 这个 id 在 data/videos.js 里已经存在了，请点「换一个」';
+      idNote.textContent = '⚠ 这个 id 在 videos.js 里已经存在了，请点「换一个」';
       idNote.className = 'field-note warn';
     } else {
       idNote.textContent = '自动生成的，一般不用改';
@@ -398,10 +398,10 @@
       codeHint.className = 'code-hint warn';
     } else if (mode === 'edit') {
       codeHint.textContent =
-        '在 data/videos.js 里找到 id: \'' + editingId + '\' 的那一段，整段替换成下面这段';
+        '在 videos.js 里找到 id: \'' + editingId + '\' 的那一段，整段替换成下面这段';
       codeHint.className = 'code-hint warn';
     } else {
-      codeHint.textContent = '粘贴到 data/videos.js 的 ]; 前面';
+      codeHint.textContent = '粘贴到 videos.js 的 ]; 前面';
       codeHint.className = 'code-hint';
     }
   }

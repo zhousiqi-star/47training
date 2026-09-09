@@ -150,7 +150,7 @@
 
       var hint = document.createElement('span');
       hint.className = 'stage-hint';
-      hint.textContent = '把视频链接填进 data/videos.js 的 url 字段，就能在这里播放';
+      hint.textContent = '把视频链接填进 videos.js 的 url 字段，就能在这里播放';
 
       cover.appendChild(bigEmoji);
       cover.appendChild(hint);

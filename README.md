@@ -31,28 +31,33 @@
 ├─ videos.html             训练视频页
 ├─ plan.html               今日计划页
 ├─ editor.html             视频录入工具（站长用）
-├─ data/
-│  ├─ exercises.js         ★ 动作数据库 —— 你主要改这个
-│  └─ videos.js            ★ 视频数据库 —— 加视频改这个
-├─ assets/
-│  ├─ style.css            样式（颜色、字体、排版、玻璃效果）
-│  ├─ search-core.js       搜索内核（关键词匹配 + 同义词表 + 部位分类）
-│  ├─ home.js              首页逻辑（分类卡片、搜索建议）
-│  ├─ app.js               搜索页逻辑（筛选、地址参数）
-│  ├─ detail.js            详情页逻辑
-│  ├─ video-page.js        视频页逻辑（封面条、预览、链接转换）
-│  ├─ plan-page.js         计划页逻辑（卡片、选择面板、组数、烟花）
-│  └─ editor.js            录入工具逻辑（生成代码、复制）
+│
+├─ exercises.js            ★ 动作数据库 —— 你主要改这个
+├─ videos.js               ★ 视频数据库 —— 加视频改这个
+│
+├─ style.css               样式（颜色、字体、排版、玻璃效果）
+├─ search-core.js          搜索内核（关键词匹配 + 同义词表 + 部位分类）
+├─ home.js                 首页逻辑（分类卡片、搜索建议）
+├─ app.js                  搜索页逻辑（筛选、地址参数）
+├─ detail.js               详情页逻辑
+├─ video-page.js           视频页逻辑（封面条、预览、链接转换）
+├─ plan-page.js            计划页逻辑（卡片、选择面板、组数、烟花）
+├─ editor.js               录入工具逻辑（生成代码、复制）
+│
+├─ wrangler.jsonc          Cloudflare 部署配置
+├─ 打开网站.bat             双击就能打开网站
 └─ README.md               这个说明
 ```
 
-你日常只需要改 **三个文件**：`data/exercises.js`（加动作）、`data/videos.js`（加视频）、`assets/search-core.js` 里的同义词表（加用户口头说法）。
+> **所有文件都放在同一层（扁平结构），没有子文件夹。** 这样上传到 GitHub 时不会出现"文件夹没传上去"的问题。
+
+你日常只需要改 **三个文件**：`exercises.js`（加动作）、`videos.js`（加视频）、`search-core.js` 里的同义词表（加用户口头说法）。
 
 ---
 
 ## 三、怎么加一个训练视频
 
-打开 `data/videos.js`，在数组末尾 `];` 之前加一段：
+打开 `videos.js`，在数组末尾 `];` 之前加一段：
 
 ```js
   {
@@ -114,10 +119,10 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 
 | 模式 | 用途 | 生成的代码怎么用 |
 |---|---|---|
-| **新增视频** | 加一条全新的 | 粘贴到 `data/videos.js` 的 `];` **前面** |
+| **新增视频** | 加一条全新的 | 粘贴到 `videos.js` 的 `];` **前面** |
 | **编辑已有的** | 改已经加过的（比如补封面） | 找到文件里 `id: 'xxx'` 的那一段，**整段替换** |
 
-切到「编辑已有的」后，下拉框会列出 `data/videos.js` 里所有视频（显示成「运动员 · 标题」）。选中哪条，表单就自动填入它现在的数据，改完复制、替换即可。
+切到「编辑已有的」后，下拉框会列出 `videos.js` 里所有视频（显示成「运动员 · 标题」）。选中哪条，表单就自动填入它现在的数据，改完复制、替换即可。
 
 > 编辑模式下 **id 会锁定不能改**（改了就等于新增一条，会重复）。工具也会在代码框上方提示你要替换哪一段。
 
@@ -149,7 +154,7 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 - **Ctrl + V** 粘贴剪贴板里的图片
 - 点「清除」→ 回到渐变色块封面
 
-**为什么是压缩后内嵌**：纯静态网站没有后端，浏览器不能把文件写进你的硬盘。所以图片会转成 base64 直接存在 `cover` 字段里——好处是**不用另存文件、不用担心路径写错、图片跟着数据走**。代价是 `data/videos.js` 会变大（一张封面约 30–60KB）。
+**为什么是压缩后内嵌**：纯静态网站没有后端，浏览器不能把文件写进你的硬盘。所以图片会转成 base64 直接存在 `cover` 字段里——好处是**不用另存文件、不用担心路径写错、图片跟着数据走**。代价是 `videos.js` 会变大（一张封面约 30–60KB）。
 
 > 如果图片特别大或视频很多，建议改用 `images/xxx.jpg` 路径方式：自己把图放进 `images` 文件夹，在 `cover` 字段写路径。两种方式可以混用。
 
@@ -181,7 +186,7 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 - 选中后卡片下方会提示：**已选「练背」，加动作时只会显示背部的 3 个动作**
 - 这个选择会**存下来**，第二天才重置
 
-> 分类定义在 `assets/search-core.js` 的 `GROUPS`，首页的六个大卡片和这里共用同一份。改一处，两个页面一起变。
+> 分类定义在 `search-core.js` 的 `GROUPS`，首页的六个大卡片和这里共用同一份。改一处，两个页面一起变。
 
 ### 第二步：右边安排动作
 
@@ -248,7 +253,7 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 - 屏幕中央弹出横幅：**🎉 今天的训练全部完成！**（带组数统计，3.5 秒后淡出）
 - 只在"从没做完变成刚做完"的那一刻触发一次，取消再重做会重新触发
 
-> 全部是纯 CSS 写的，没有引入任何第三方库。粒子数量、颜色、飞行距离都在 `assets/plan-page.js`：`burst()` 控制粒子，`confetti()` 控制彩带，`FX_COLORS` 是配色。系统开启「减弱动态效果」时，粒子全部不生成，只保留横幅提示。
+> 全部是纯 CSS 写的，没有引入任何第三方库。粒子数量、颜色、飞行距离都在 `plan-page.js`：`burst()` 控制粒子，`confetti()` 控制彩带，`FX_COLORS` 是配色。系统开启「减弱动态效果」时，粒子全部不生成，只保留横幅提示。
 
 顶部有一条橙色进度条，显示 **已完成组数 / 总组数**，还有动作完成数。
 
@@ -262,7 +267,7 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 
 ## 五、怎么加一个新动作
 
-1. 打开 `data/exercises.js`
+1. 打开 `exercises.js`
 2. 找到数组末尾的 `];`
 3. 在它前面复制粘贴下面这段模板（注意末尾的逗号）：
 
@@ -293,7 +298,7 @@ https://open.douyin.com/player/video?vid=<视频ID>&autoplay=0
 
 ## 六、怎么改首页的六个大分类
 
-打开 `assets/home.js`，最上面有个 `GROUPS` 数组：
+打开 `home.js`，最上面有个 `GROUPS` 数组：
 
 ```js
 var GROUPS = [
@@ -320,7 +325,7 @@ var GROUPS = [
 
 比如用户搜「练背」「腹部」「瘦腿」「减脂」，这些词数据里并不存在。翻译工作由同义词表负责。
 
-打开 `assets/search-core.js`，找到 `SYNONYMS`：
+打开 `search-core.js`，找到 `SYNONYMS`：
 
 ```js
 var SYNONYMS = {
@@ -340,7 +345,7 @@ var SYNONYMS = {
 
 ## 八、外观怎么调（橙色流动玻璃）
 
-所有视觉都在 `assets/style.css` 一个文件里，不用改 HTML。
+所有视觉都在 `style.css` 一个文件里，不用改 HTML。
 
 ### 想换背景的橙色
 文件最上面的 `body::before` 和 `body::after` 里，那几行 `radial-gradient` 就是流动的光斑。改里面的颜色值即可：
@@ -364,7 +369,7 @@ radial-gradient(42% 44% at 18% 26%, rgba(255, 132, 45, .58), transparent 66%),
 改 `--brand` 和 `--brand-dark` 两个值。
 
 ### 大卡片的分类色
-`assets/home.js` 里每个分类的 `tone` 数字（0–7），对应 `style.css` 里 `.tone-0` 到 `.tone-7`。这些颜色只在卡片顶部形成一层很淡的光，卡片本身还是白玻璃。
+`home.js` 里每个分类的 `tone` 数字（0–7），对应 `style.css` 里 `.tone-0` 到 `.tone-7`。这些颜色只在卡片顶部形成一层很淡的光，卡片本身还是白玻璃。
 
 > 注意：毛玻璃效果在很老的浏览器（IE、旧版 Safari）上不生效，会自动降级成不透明白色，内容照样能看。
 
