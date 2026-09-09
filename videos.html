@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>训练视频 · 47的健身小帮手</title>
+<meta name="description" content="分享高水平运动员的训练视频，预览封面并查看技术要点。">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <h1><a href="index.html"><span class="brand-mark">47</span><span class="brand-text">的健身小帮手</span></a></h1>
+    <nav class="site-nav">
+      <a href="index.html">动作搜索</a>
+      <a href="videos.html" class="active">训练视频</a>
+      <a href="plan.html">今日计划</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="picker">
+    <div class="picker-head">
+      <div>
+        <h2 class="picker-title">高水平运动员训练视频</h2>
+        <p class="picker-sub">选一个封面，在下面预览</p>
+      </div>
+      <div class="picker-nav">
+        <a class="add-video" href="editor.html">＋ 添加视频</a>
+        <button type="button" id="prev" aria-label="上一个">‹</button>
+        <button type="button" id="next" aria-label="下一个">›</button>
+      </div>
+    </div>
+
+    <div class="cover-strip" id="strip" tabindex="0"></div>
+  </section>
+
+  <section class="stage" id="stage"></section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>
+      免责声明：本站内容仅供参考，不构成医疗或训练处方建议。视频版权归原作者所有，本站仅提供外链索引。
+      开始任何训练计划前，请根据自身健康状况咨询医生或专业教练。
+    </p>
+  </div>
+</footer>
+
+<script src="data/videos.js"></script>
+<script src="assets/video-page.js"></script>
+</body>
+</html>
