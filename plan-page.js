@@ -3,24 +3,31 @@
    - 左上角先选「今天练什么」，选中后加动作时只出现该部位的动作
    - 卡片可自由增减，默认 4 张
    - 点空卡片 → 居中搜索面板（唯一的选择方式）
-   - 点圆点记组数，逐颗点亮
-   - 数据存在浏览器本地，按日期自动重置
+   - 点圆点记组数，逐颗点亮；每个动作可以填一个重量（kg）
+   - 今天的工作区存在 fit-plan-v1，按日期重置；
+     同时把当天沉淀进 fit-history-v1（只增不减的日志，见 history.js）
+   - 「封存今天的清单」：做完全部动作后按一下，这一天在历史里才合上一枚印
+     （没封存的日子在历史里是一条开口的弧，数据不会丢——save() 一直在写日志）
    ========================================================================== */
 
 (function () {
   'use strict';
 
   var FIT = window.FIT;
+  var HIST = window.HIST;
   if (!FIT) return;
 
-  var KEY = 'fit-plan-v1';
+  var KEY = 'fit-plan-v1';            // 今天的工作区：可变、按天重置
+  var KEY_RECENT = 'fit-recent-v1';   // 最近用过的动作：跨天保留，不再跟着重置
   var DEFAULT_CARDS = 4;
   var DEFAULT_SETS = 4;
   var MAX_SETS = 12;
 
-  var items = [];             // [{ exId, sets, done }]
+  var items = [];             // [{ exId, sets, done, weight }]
   var recent = [];            // 最近用过的动作 id
   var focusKey = '';          // 今天练什么：'' = 全部
+  var firstOpenedAt = null;   // 今天第一次打开这个页面的时间（不等于训练开始时间）
+  var sealedAt = null;        // 今天这份清单被封存的时刻：null = 还是一份草稿
   var activeIndex = -1;       // 正在填写的卡片下标
   var pickAll = false;        // 本次搜索是否忽略部位限制
   var pickResults = [];
@@ -33,8 +40,15 @@
   var elList      = document.getElementById('plan-list');
   var elAdd       = document.getElementById('add-card');
   var elClear     = document.getElementById('clear-plan');
+  var elSeal      = document.getElementById('seal-day');
+  var elOutput    = document.getElementById('output-card');
   var elSub       = document.getElementById('plan-sub');
   var elBar       = document.getElementById('progress-bar');
+  var elDate      = document.getElementById('plan-date');
+  var elDone      = document.getElementById('meter-done');
+  var elTotal     = document.getElementById('meter-total');
+  var elPct       = document.getElementById('meter-pct');
+  var elMeter     = document.getElementById('meter');
   var elFocusList = document.getElementById('focus-list');
   var elFocusNote = document.getElementById('focus-note');
   var elOverlay   = document.getElementById('overlay');
@@ -45,7 +59,10 @@
   var elPickClose = document.getElementById('pick-close');
 
   /* --------------------------------------------------------------------
-     存取：按日期保存，第二天自动重置
+     存取
+     两套东西：
+       fit-plan-v1    今天的工作区，可变，第二天重置
+       fit-history-v1 只增不减的日志，每天一条，键是日期（见 history.js）
      -------------------------------------------------------------------- */
   var storageOK = (function () {
     try {
@@ -55,17 +72,68 @@
     } catch (e) { return false; }
   })();
 
+  // 日期用零填充的 YYYY-MM-DD —— 这样日志里按字符串排序就是按时间排序
   function todayKey() {
+    if (HIST) return HIST.todayKey();
     var d = new Date();
-    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+
+  function saveRecent() {
+    try { localStorage.setItem(KEY_RECENT, JSON.stringify({ ids: recent })); } catch (e) { /* 忽略 */ }
+  }
+
+  // 「最近用过」跨天保留，所以单独读，不跟着当天记录一起重置
+  function loadRecent() {
+    try {
+      var raw = localStorage.getItem(KEY_RECENT);
+      if (raw) {
+        var data = JSON.parse(raw);
+        recent = Array.isArray(data && data.ids) ? data.ids : [];
+        return;
+      }
+      // 旧版本把它存在 fit-plan-v1 里，搬一次
+      var old = localStorage.getItem(KEY);
+      if (old) {
+        var od = JSON.parse(old);
+        if (Array.isArray(od && od.recent) && od.recent.length) {
+          recent = od.recent;
+          saveRecent();
+        }
+      }
+    } catch (e) { recent = []; }
   }
 
   function save() {
     try {
       localStorage.setItem(KEY, JSON.stringify({
-        date: todayKey(), items: items, recent: recent, focusKey: focusKey
+        date: todayKey(), items: items, focusKey: focusKey,
+        firstOpenedAt: firstOpenedAt, sealedAt: sealedAt
       }));
     } catch (e) { /* 隐私模式下写不进去，忽略 */ }
+    saveRecent();
+
+    // 沉淀进日志：同一天反复写只覆盖同一条，过了那天就冻结。
+    // 只有真的填了动作才记，空手打开不留痕。
+    if (!HIST) return;
+    var filled = items.filter(function (it) { return it.exId; });
+    if (!filled.length) return;
+    HIST.upsert({
+      date: todayKey(),
+      focusKey: focusKey,
+      firstOpenedAt: firstOpenedAt,
+      updatedAt: Date.now(),
+      sealedAt: sealedAt,
+      entries: filled.map(function (it) {
+        return {
+          exId: it.exId,
+          sets: +it.sets || 0,
+          done: +it.done || 0,
+          weight: (it.weight == null || it.weight === '') ? null : +it.weight
+        };
+      })
+    });
   }
 
   function load() {
@@ -73,15 +141,24 @@
       var raw = localStorage.getItem(KEY);
       if (!raw) return false;
       var data = JSON.parse(raw);
-      if (!data || data.date !== todayKey() || !Array.isArray(data.items)) return false;
+      if (!data || !Array.isArray(data.items)) return false;
+      // 旧数据用的是 2026-9-16，新的是 2026-09-16，两种都认
+      var stored = HIST ? HIST.normalizeDate(data.date) : data.date;
+      if (stored !== todayKey()) return false;
       items = data.items;
-      recent = Array.isArray(data.recent) ? data.recent : [];
       focusKey = typeof data.focusKey === 'string' ? data.focusKey : '';
+      firstOpenedAt = data.firstOpenedAt || null;
+      sealedAt = data.sealedAt || null;
+      // 工作区和日志万一不一致，以"盖过印"的那一边为准：封存这个动作不该被丢掉
+      if (!sealedAt && HIST && HIST.isSealed(todayKey())) {
+        var s = HIST.get(todayKey());
+        sealedAt = (s && s.sealedAt) || null;
+      }
       return items.length > 0;
     } catch (e) { return false; }
   }
 
-  function blank() { return { exId: null, sets: DEFAULT_SETS, done: 0 }; }
+  function blank() { return { exId: null, sets: DEFAULT_SETS, done: 0, weight: null }; }
 
   function initItems() {
     items = [];
@@ -118,7 +195,18 @@
 
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'focus-row' + (selected ? ' active' : '') + (isAll ? ' all' : '');
+    // 磁贴不再挂分类色相：全站只有一支青加中性灰，部位靠 emoji 和名字区分
+    btn.className = 'focus-row' + (isAll ? ' all' : '') + (selected ? ' active' : '');
+
+    // 柱高 = 该部位动作数 ÷ 六个部位里的最大值，真比例，不留装饰性的下限。
+    // 「全部动作」不是部位、不在这张图的轴上，所以它没有柱子。
+    if (!isAll) {
+      var maxCount = 1;
+      FIT.groups.forEach(function (grp) {
+        maxCount = Math.max(maxCount, FIT.countGroup(grp));
+      });
+      btn.style.setProperty('--h', Math.round(FIT.countGroup(g) / maxCount * 100) + '%');
+    }
 
     var emoji = document.createElement('span');
     emoji.className = 'focus-emoji';
@@ -222,9 +310,8 @@
     var body = document.createElement('div');
     body.className = 'plan-body';
 
-    var name = document.createElement('a');
+    var name = document.createElement('span');
     name.className = 'plan-name';
-    name.href = 'exercise.html?id=' + encodeURIComponent(ex.id);
     name.textContent = ex.name;
 
     var tags = document.createElement('div');
@@ -253,11 +340,38 @@
     label.className = 'sets-label';
     label.textContent = '完成组数';
 
+    // 重量：一个空，单位固定 kg，不填也能过
+    var weightWrap = document.createElement('label');
+    weightWrap.className = 'set-weight';
+
+    var weightInput = document.createElement('input');
+    weightInput.type = 'text';
+    weightInput.inputMode = 'decimal';
+    weightInput.autocomplete = 'off';
+    weightInput.placeholder = '—';
+    weightInput.value = (item.weight == null) ? '' : String(item.weight);
+    weightInput.setAttribute('aria-label', ex.name + ' 用的重量，单位公斤');
+
+    var weightUnit = document.createElement('span');
+    weightUnit.textContent = 'kg';
+
+    weightWrap.appendChild(weightInput);
+    weightWrap.appendChild(weightUnit);
+
+    weightInput.addEventListener('input', function () {
+      var raw = weightInput.value.replace(/[^\d.]/g, '');
+      if (raw !== weightInput.value) weightInput.value = raw;
+      var n = parseFloat(raw);
+      item.weight = (raw === '' || !isFinite(n) || n <= 0) ? null : n;
+      save();                     // 只存，不重渲染 —— 重渲染会让输入框失焦
+    });
+
     var count = document.createElement('span');
     count.className = 'sets-count';
     count.textContent = item.done + ' / ' + item.sets;
 
     top.appendChild(label);
+    top.appendChild(weightWrap);
     top.appendChild(count);
 
     var bottom = document.createElement('div');
@@ -301,8 +415,8 @@
     card.addEventListener('click', function (e) {
       if (e.target.closest('.set-dot') ||
           e.target.closest('.sets-stepper') ||
-          e.target.closest('.plan-remove') ||
-          e.target.closest('.plan-name')) return;
+          e.target.closest('.set-weight') ||
+          e.target.closest('.plan-remove')) return;
       openPicker(idx);
     });
 
@@ -327,8 +441,8 @@
   /* --------------------------------------------------------------------
      完成动作时的烟花（纯 CSS 粒子，无第三方库）
      -------------------------------------------------------------------- */
-  var FX_COLORS = ['#ea580c', '#f59e0b', '#fbbf24', '#fb923c',
-                   '#d97706', '#fcd34d', '#f97316', '#fde68a'];
+  var FX_COLORS = ['#35e8c9', '#7cf3de', '#22b8a0', '#a8f7e8',
+                   '#0fd3b4', '#5eead4', '#c9fbf0', '#35e8c9'];
   var fxLayer = null;
 
   function rand(min, max) { return min + Math.random() * (max - min); }
@@ -403,17 +517,7 @@
     removeLater(r, 1200);
   }
 
-  // 爆点的一团柔光
-  function flash(x, y, big) {
-    var f = document.createElement('i');
-    f.className = 'fx-flash' + (big ? ' big' : '');
-    f.style.left = x + 'px';
-    f.style.top = y + 'px';
-    getFxLayer().appendChild(f);
-    removeLater(f, 1100);
-  }
-
-  // 单个动作做满
+  // 单个动作做满：纸带记录仪世界里不发光晕，只用粒子 + 光环
   function celebrate(el) {
     if (!el || reducedMotion || !el.getBoundingClientRect) return;
 
@@ -421,7 +525,6 @@
     var x = box.left + box.width / 2;
     var y = box.top + box.height / 2;
 
-    flash(x, y);
     burst(x, y, { count: 26, dMin: 60, dMax: 175, sMin: 5, sMax: 11 });
     ring(x, y);
 
@@ -498,7 +601,6 @@
         setTimeout(function () {
           var x = w * rand(0.12, 0.88);
           var y = h * rand(0.15, 0.6);
-          flash(x, y, true);
           burst(x, y, { count: 32, dMin: 80, dMax: 250, sMin: 6, sMax: 14 });
           ring(x, y, true);
         }, i * 130);
@@ -596,12 +698,156 @@
     });
 
     var pct = totalSets ? Math.round(doneSets / totalSets * 100) : 0;
-    elBar.style.width = pct + '%';
 
-    elSub.textContent = totalEx
-      ? '已完成 ' + doneSets + ' / ' + totalSets + ' 组 · ' +
-        doneEx + ' / ' + totalEx + ' 个动作'
-      : '还没有添加动作，点下面的空卡片开始';
+    // 用 scaleX 而不是 width：位移动画不触发布局重排
+    elBar.style.transform = 'scaleX(' + (pct / 100) + ')';
+
+    if (elDone) elDone.textContent = doneSets;
+    if (elTotal) elTotal.textContent = totalSets;
+
+    // 读数板右侧回答的是产品故事里的那句话：「今天还差几组」。
+    // 比例已经由读数与进度条表达了，不再重复第三遍。
+    if (elPct) {
+      var left = totalSets - doneSets;
+      elPct.innerHTML = totalSets
+        ? (left > 0 ? '还差 <b>' + left + '</b> 组' : '今天做满了')
+        : '';
+    }
+    if (elMeter) {
+      elMeter.classList.toggle('is-done', totalSets > 0 && doneSets >= totalSets);
+      elMeter.classList.toggle('is-sealed', !!sealedAt);
+    }
+
+    // 封存过的一天，读数板下面那行先报封印，再报动作数
+    var stamp = sealedAt ? '已封存 ' + fmtTime(sealedAt) + ' · ' : '';
+    elSub.textContent = stamp + (totalEx
+      ? doneEx + ' / ' + totalEx + ' 个动作已完成'
+      : '还没有添加动作，点下面的空卡片开始');
+
+    renderSeal();
+  }
+
+  // 顶部日期：只在打开时算一次
+  function renderDate() {
+    if (!elDate) return;
+    var d = new Date();
+    var week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][d.getDay()];
+    elDate.textContent = d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' +
+      d.getDate() + ' 日 · ' + week;
+  }
+
+  /* --------------------------------------------------------------------
+     封存今天的清单
+     --------------------------------------------------------------------------
+     用户的工作方式：做完全部动作，才输出一张今天的清单。
+     在那之前 save() 一直在往日志里写草稿（防丢）——但历史里那一天是**开口的弧**；
+     按了这一下，弧才合拢成一枚闭合的印。
+     -------------------------------------------------------------------- */
+
+  function fmtTime(ts) {
+    var d = new Date(ts);
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function filledItems() {
+    return items.filter(function (it) { return it.exId; });
+  }
+
+  function renderSeal() {
+    if (!elSeal) return;
+    var canSeal = filledItems().length > 0;
+
+    elSeal.disabled = !canSeal;
+    elSeal.classList.toggle('is-sealed', !!sealedAt);
+    // 全部做满、还没封存 —— 这时它才是这一栏里该被看见的那一个
+    elSeal.classList.toggle('is-ready', !sealedAt && canSeal && allDone());
+
+    if (sealedAt) {
+      elSeal.textContent = '已封存 · ' + fmtTime(sealedAt);
+      elSeal.setAttribute('aria-label',
+        '今天的清单已封存于 ' + fmtTime(sealedAt) + '，再按一次更新封存时刻');
+    } else {
+      elSeal.textContent = '封存今天的清单';
+      elSeal.setAttribute('aria-label', '把今天的清单封存进训练历史');
+    }
+
+    // 输出那张记录：封存是盖印，输出是取走那张卡。没封存的一天不给输出
+    if (elOutput) elOutput.hidden = !sealedAt || !canSeal;
+  }
+
+  /* --------------------------------------------------------------------
+     今天这张记录
+     --------------------------------------------------------------------------
+     卡片由 card.js 用 Canvas 画。这里只负责把当天的数据整理成它要的形状：
+     动作名 / 完成组数 / 计划组数 / 那个动作的重量，加上封存时刻。
+     -------------------------------------------------------------------- */
+  function cardData() {
+    var list = filledItems().map(function (it) {
+      var w = (it.weight == null || it.weight === '') ? null : parseFloat(it.weight);
+      return {
+        name: (HIST && HIST.exerciseName) ? HIST.exerciseName(it.exId) : it.exId,
+        sets: +it.sets || 0,
+        done: Math.min(+it.done || 0, +it.sets || 0),
+        weight: (w == null || !isFinite(w) || w <= 0) ? null : w
+      };
+    });
+
+    var totalSets = 0, doneSets = 0, top = null;
+    list.forEach(function (x) {
+      totalSets += x.sets;
+      doneSets += x.done;
+      if (x.weight && (!top || x.weight > top.value)) top = { value: x.weight, name: x.name };
+    });
+
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    var week = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][d.getDay()];
+
+    return {
+      date: d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()),
+      week: week,
+      sealTime: sealedAt ? fmtTime(sealedAt) : '',
+      items: list,
+      totalSets: totalSets,
+      doneSets: doneSets,
+      actions: list.length,
+      maxWeight: top,
+      summary: list.length + ' 个动作 · 计划 ' + totalSets + ' 组'
+    };
+  }
+
+  function outputCard() {
+    if (!sealedAt || !window.FITCARD) return;
+    window.FITCARD.open(cardData());
+  }
+
+  function sealDay() {
+    if (!filledItems().length) return;
+
+    var again = !!sealedAt;
+    sealedAt = Date.now();
+    save();                       // 时间戳同时写进工作区和日志，两侧不许打架
+    renderSeal();
+    updateProgress();             // 读数板那行要跟着报封印，否则它停在"还差几组"
+
+    var actions = 0, doneSets = 0;
+    filledItems().forEach(function (it) {
+      actions++;
+      doneSets += Math.min(it.done, it.sets);
+    });
+    var sub = actions + ' 个动作 · ' + doneSets + ' 组 · ' + fmtTime(sealedAt);
+    var title = again ? '已更新封存' : '今天的清单已封存';
+
+    // 这一次的反馈刻意比"全部做满"低一档：彩带只留给那一刻，
+    // 封存是从按钮上炸开一圈——印盖在清单上，不是在屏幕中央放烟花。
+    if (reducedMotion || !elSeal) { banner(title, sub); return; }
+
+    var r = elSeal.getBoundingClientRect();
+    var x = r.left + r.width / 2, y = r.top + r.height / 2;
+    burst(x, y, { count: 20, dMin: 40, dMax: 150, sMin: 5, sMax: 11 });
+    ring(x, y, false);
+    banner(title, sub);
   }
 
   /* --------------------------------------------------------------------
@@ -836,10 +1082,15 @@
 
   elAdd.addEventListener('click', addCard);
 
+  if (elSeal) elSeal.addEventListener('click', sealDay);
+  if (elOutput) elOutput.addEventListener('click', outputCard);
+
   elClear.addEventListener('click', function () {
     if (!window.confirm('清空今天的训练计划？')) return;
     initItems();
-    recent = [];
+    sealedAt = null;                       // 清单清空了，封印也跟着作废
+    // 「最近用过」是跨天的记忆，不该被"清空今天"连坐
+    if (HIST) HIST.remove(todayKey());     // 今天没练过，日志里也不该留一条
     save();
     render();
   });
@@ -847,7 +1098,11 @@
   /* --------------------------------------------------------------------
      启动
      -------------------------------------------------------------------- */
-  if (!load()) initItems();
+  if (!load()) { initItems(); sealedAt = null; }   // 新的一天 → 工作区重置
+  if (!firstOpenedAt) firstOpenedAt = Date.now();   // 记下今天第一次打开
+  loadRecent();                           // 跨天保留，放在 load 之外
+  if (HIST) HIST.migrate();               // 旧数据搬进日志，只做一次
+  renderDate();
   renderFocus();
   render();
 

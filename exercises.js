@@ -11,11 +11,18 @@
      primaryMuscle       主要肌群（决定筛选器里的选项，同一类要写一样）
      secondaryMuscles    次要肌群
      equipment           器械数组（无器械写 "无器械"）
+
+   ── 器械命名约定（用户定的，以后新增动作一律照这个写）──
+     · 统一用「龙门架」，不要写「拉力器」（同一个东西，全库只留一个叫法）
+     · 已是正式值的还有：无器械 / 哑铃 / 杠铃 / 单杠 / 龙门架 / 器械 / 卧推凳 / 深蹲架 / 罗马椅 / 史密斯机 / 双杠 / 蝴蝶机
+     · 要加新器械值，先确认它在库里还没别的写法；同一台器械只能有一种叫法
      category            类别：力量 / 有氧 / 核心 / 拉伸 / 热身
      difficulty          难度：入门 / 进阶 / 高阶
      metrics             计量单位：次 / 秒 / 分钟 / 距离
      video               视频外链（B站地址，暂时可留空字符串）
-     contraindication    禁忌人群 / 注意事项（没有就写 ""）
+
+   ── 以下四个字段是可选的，没写就整段不写，页面一样正常 ──
+     contraindication    禁忌人群 / 注意事项
      steps               动作步骤，字符串数组
      mistakes            常见错误，字符串数组
      tips                提示，字符串数组
@@ -25,7 +32,8 @@ window.EXERCISES = [
   {
     id: 'dumbbell-row',
     name: '哑铃单臂划船',
-    aliases: ['单臂划船', '单手划船', '单手哑铃划船', 'One-arm Dumbbell Row'],
+    aliases: ['单臂划船', '单手划船', '单手哑铃划船', '哑铃划船', '俯身哑铃划船',
+              'One-arm Dumbbell Row', 'Bent-over Dumbbell Row'],
     primaryMuscle: '背',
     secondaryMuscles: ['肱二头肌', '后束三角肌'],
     equipment: ['哑铃'],
@@ -85,7 +93,7 @@ window.EXERCISES = [
   {
     id: 'dumbbell-bench-press',
     name: '哑铃卧推',
-    aliases: ['哑铃平板卧推', 'Dumbbell Bench Press', '哑铃推胸'],
+    aliases: ['哑铃平板卧推', '平板哑铃卧推', 'Dumbbell Bench Press', '哑铃推胸'],
     primaryMuscle: '胸',
     secondaryMuscles: ['肱三头肌', '前束三角肌'],
     equipment: ['哑铃', '卧推凳'],
@@ -290,38 +298,9 @@ window.EXERCISES = [
     ]
   },
   {
-    id: 'glute-bridge',
-    name: '臀桥',
-    aliases: ['桥式', 'Glute Bridge', '臀推（地面版）'],
-    primaryMuscle: '臀',
-    secondaryMuscles: ['腿', '核心'],
-    equipment: ['无器械'],
-    category: '力量',
-    difficulty: '入门',
-    metrics: '次',
-    video: '',
-    contraindication: '无特殊禁忌；颈部不适者注意不要用头颈支撑。',
-    steps: [
-      '仰卧屈膝，双脚与髋同宽踩地，脚跟距臀部约一掌宽',
-      '双臂放于体侧，掌心向下',
-      '臀部发力向上顶起，直到肩、髋、膝成一条直线',
-      '顶端收紧臀部 1–2 秒',
-      '控制下放，臀部接近地面但不完全放松'
-    ],
-    mistakes: [
-      '用腰部发力顶起，臀肌没有感觉',
-      '顶得过高导致腰椎过度伸展',
-      '膝盖外张或内扣，没有对准脚尖方向'
-    ],
-    tips: [
-      '顶起前先"想象夹住一张纸"，更容易找到臀肌发力',
-      '进阶可做单腿臀桥，或把脚搭在沙发上做臀推'
-    ]
-  },
-  {
     id: 'dumbbell-shoulder-press',
     name: '哑铃肩推',
-    aliases: ['肩推', '坐姿推举', 'Dumbbell Shoulder Press', '哑铃推举'],
+    aliases: ['肩推', '坐姿推举', '哑铃推举', '哑铃推肩', 'Dumbbell Shoulder Press'],
     primaryMuscle: '肩',
     secondaryMuscles: ['肱三头肌', '核心'],
     equipment: ['哑铃'],
@@ -378,7 +357,7 @@ window.EXERCISES = [
   {
     id: 'dumbbell-curl',
     name: '站姿哑铃弯举',
-    aliases: ['哑铃弯举', '二头弯举', 'Dumbbell Curl', '弯举'],
+    aliases: ['哑铃弯举', '二头弯举', '哑铃二头弯举', '弯举', 'Dumbbell Curl'],
     primaryMuscle: '手臂',
     secondaryMuscles: ['肱二头肌', '小臂'],
     equipment: ['哑铃'],
@@ -402,64 +381,6 @@ window.EXERCISES = [
     tips: [
       '靠墙站或背贴柱子做，能有效防止身体借力',
       '弯举这类小肌群动作，8–15 次的次数区间比较合适'
-    ]
-  },
-  {
-    id: 'jumping-jack',
-    name: '开合跳',
-    aliases: ['Jumping Jack', '开合跳跃', '跳绳替代'],
-    primaryMuscle: '全身',
-    secondaryMuscles: ['小腿', '肩'],
-    equipment: ['无器械'],
-    category: '有氧',
-    difficulty: '入门',
-    metrics: '分钟',
-    video: '',
-    contraindication: '膝关节、踝关节有伤者，或体重较大者，建议改用低冲击替代（如踏步开合）。',
-    steps: [
-      '直立站立，双手自然放于体侧',
-      '起跳同时双脚向两侧打开，双手从体侧向上举过头顶',
-      '再次起跳还原到起始姿势',
-      '保持节奏均匀，落地时膝盖微屈缓冲'
-    ],
-    mistakes: [
-      '落地时直腿硬砸地面，冲击膝关节',
-      '只动手不动脚，或幅度过小',
-      '憋气，节奏紊乱'
-    ],
-    tips: [
-      '常用来热身或做 HIIT 的间歇动作，30 秒一组很合适',
-      '楼下邻居敏感的话，铺一张瑜伽垫能明显减小噪音'
-    ]
-  },
-  {
-    id: 'burpee',
-    name: '波比跳',
-    aliases: ['Burpee', '立卧撑', '波比'],
-    primaryMuscle: '全身',
-    secondaryMuscles: ['胸', '腿', '核心'],
-    equipment: ['无器械'],
-    category: '有氧',
-    difficulty: '进阶',
-    metrics: '次',
-    video: '',
-    contraindication: '心肺功能受限、膝关节或腰椎有伤者不建议做完整版，可去掉跳跃改为踏步。',
-    steps: [
-      '站姿开始，下蹲双手撑地',
-      '双脚向后跳成俯卧撑支撑位',
-      '做一个标准俯卧撑',
-      '双脚跳回双手附近',
-      '起跳并双手举过头顶，完成一次完整动作'
-    ],
-    mistakes: [
-      '俯卧撑阶段塌腰',
-      '跳回时膝盖内扣',
-      '为了追求次数而牺牲动作质量',
-      '新手一上来就做很多组，第二天过度疲劳'
-    ],
-    tips: [
-      '强度很高，新手建议每组 5–8 次，组间休息 60 秒',
-      '膝盖不适就把"跳"改成"走"，效果相近但冲击小很多'
     ]
   },
   {
@@ -547,68 +468,12 @@ window.EXERCISES = [
     ]
   },
   {
-    id: 'jump-rope',
-    name: '跳绳',
-    aliases: ['Jump Rope', '跳绳训练', '花式跳绳'],
-    primaryMuscle: '全身',
-    secondaryMuscles: ['小腿', '肩', '核心'],
-    equipment: ['跳绳'],
-    category: '有氧',
-    difficulty: '入门',
-    metrics: '分钟',
-    video: '',
-    contraindication: '体重较大或膝关节有伤者建议改用低冲击有氧，如快走、椭圆机。',
-    steps: [
-      '双脚并拢站立，绳子置于身后，双手握柄位于髋部两侧',
-      '用手腕摇绳，而不是用整个手臂',
-      '绳子到脚下时轻轻起跳，落地时前脚掌先着地',
-      '保持节奏均匀，膝盖微屈缓冲'
-    ],
-    mistakes: [
-      '用大臂抡绳，很快就累',
-      '跳得过高，浪费体力且冲击大',
-      '全脚掌或脚跟落地'
-    ],
-    tips: [
-      '新手可以 30 秒跳 + 30 秒休息，循环 10 组',
-      '穿有缓震的鞋子，在木地板或瑜伽垫上跳'
-    ]
-  },
-  {
-    id: 'high-knees',
-    name: '高抬腿',
-    aliases: ['High Knees', '原地高抬腿', '跑步高抬腿'],
-    primaryMuscle: '全身',
-    secondaryMuscles: ['腿', '核心'],
-    equipment: ['无器械'],
-    category: '有氧',
-    difficulty: '入门',
-    metrics: '分钟',
-    video: '',
-    contraindication: '膝关节不适者降低抬腿高度。',
-    steps: [
-      '站姿，双脚与髋同宽，核心收紧',
-      '交替快速抬起膝盖至髋部高度',
-      '手臂配合摆动，保持身体直立不后仰',
-      '前脚掌落地，节奏均匀'
-    ],
-    mistakes: [
-      '上身过度后仰',
-      '抬腿高度不够，变成原地踏步',
-      '落地砸地，冲击关节'
-    ],
-    tips: [
-      '常用来热身，30–45 秒一组效果刚好',
-      '心率提升很快，适合放进 HIIT 循环里'
-    ]
-  },
-  {
     id: 'lat-pulldown',
     name: '高位下拉',
     aliases: ['下拉', 'Lat Pulldown', '背阔肌下拉'],
     primaryMuscle: '背',
     secondaryMuscles: ['肱二头肌', '后束三角肌'],
-    equipment: ['拉力器'],
+    equipment: ['龙门架'],
     category: '力量',
     difficulty: '入门',
     metrics: '次',
@@ -685,5 +550,465 @@ window.EXERCISES = [
       '上臂固定是关键，想象"胳膊肘被夹住了"',
       '重量不宜过大，这个动作对肘关节比较敏感'
     ]
+  },
+
+  {
+    id: 'high-row',
+    name: '高位划船',
+    aliases: ['高位拉背'],
+    primaryMuscle: '背',
+    secondaryMuscles: ['后束三角肌', '肱二头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '进阶',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'cable-close-row',
+    name: '绳索窄距划船',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌', '后束三角肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'single-arm-cable-row',
+    name: '单臂绳索划船',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌', '后束三角肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'single-arm-machine-row',
+    name: '固定单臂划船',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌', '后束三角肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'seal-row',
+    name: '海豹划船',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['后束三角肌', '肱二头肌'],
+    equipment: ['杠铃', '卧推凳'],
+    category: '力量',
+    difficulty: '进阶',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'track-row',
+    name: '轨道划船',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌', '后束三角肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 't-bar-row',
+    name: 'T杆划船',
+    aliases: ['T杠划船', 'T字划船'],
+    primaryMuscle: '背',
+    secondaryMuscles: ['后束三角肌', '肱二头肌'],
+    equipment: ['杠铃'],
+    category: '力量',
+    difficulty: '进阶',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'cable-pulldown',
+    name: '钢线下拉',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'flex-car-pulldown',
+    name: 'Flex跑车拉背',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: ['肱二头肌', '后束三角肌'],
+    equipment: [],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'scissor-back',
+    name: '大剪刀',
+    aliases: [],
+    primaryMuscle: '背',
+    secondaryMuscles: [],
+    equipment: [],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'back-extension',
+    name: '山羊挺身',
+    aliases: ['罗马椅挺身'],
+    primaryMuscle: '背',
+    secondaryMuscles: ['臀', '腿'],
+    equipment: ['罗马椅'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+
+  {
+    id: 'smith-bench-press',
+    name: '史密斯卧推',
+    aliases: ['史密斯机卧推'],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['肱三头肌', '前束三角肌'],
+    equipment: ['史密斯机'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'smith-incline-press',
+    name: '史密斯上斜卧推',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['前束三角肌', '肱三头肌'],
+    equipment: ['史密斯机'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'arsenal-incline-press',
+    name: '阿森纳上斜卧推',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['前束三角肌', '肱三头肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'incline-dumbbell-press',
+    name: '哑铃上斜卧推',
+    aliases: ['上斜哑铃卧推'],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['前束三角肌', '肱三头肌'],
+    equipment: ['哑铃', '卧推凳'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'nautilus-flat-press',
+    name: 'Nautilus平推',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['肱三头肌', '前束三角肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'independent-decline-press',
+    name: '分动下斜推胸',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'cable-fly',
+    name: '绳索夹胸',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['前束三角肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'dip',
+    name: '双杠臂屈伸',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['肱三头肌', '前束三角肌'],
+    equipment: ['双杠'],
+    category: '力量',
+    difficulty: '进阶',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'machine-chest-extension',
+    name: '固定器械臂屈伸',
+    aliases: [],
+    primaryMuscle: '胸',
+    secondaryMuscles: [],
+    equipment: [],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'pec-deck',
+    name: '蝴蝶机夹胸',
+    aliases: ['蝴蝶机'],
+    primaryMuscle: '胸',
+    secondaryMuscles: ['前束三角肌'],
+    equipment: ['蝴蝶机'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+
+  {
+    id: 'y-raise',
+    name: 'Y字侧平举',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['斜方肌'],
+    equipment: ['哑铃'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'machine-shoulder-press',
+    name: '器械推肩',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'smith-shoulder-press',
+    name: '史密斯推肩',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['史密斯机'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'bent-over-dumbbell-pull',
+    name: '俯身哑铃提拉',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['斜方肌'],
+    equipment: ['哑铃'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'face-pull',
+    name: '面拉',
+    aliases: ['Face Pull'],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['斜方肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'cable-lateral-raise',
+    name: '绳索侧平举',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['斜方肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'reverse-pec-deck',
+    name: '蝴蝶机后束外展',
+    aliases: [],
+    primaryMuscle: '肩',
+    secondaryMuscles: ['斜方肌'],
+    equipment: ['蝴蝶机'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+
+  {
+    id: 'machine-crunch',
+    name: '器械卷腹',
+    aliases: [],
+    primaryMuscle: '核心',
+    secondaryMuscles: [],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'hanging-leg-raise',
+    name: '悬垂举腿',
+    aliases: [],
+    primaryMuscle: '核心',
+    secondaryMuscles: ['髋屈肌'],
+    equipment: ['单杠'],
+    category: '力量',
+    difficulty: '进阶',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'precor-leg-raise',
+    name: 'Precor举腿',
+    aliases: [],
+    primaryMuscle: '核心',
+    secondaryMuscles: [],
+    equipment: ['器械'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'triceps-lateral-cable-pushdown',
+    name: '外侧头绳索下拉',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'triceps-long-head-cable-pushdown',
+    name: '长头绳索下拉',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'single-arm-cable-pushdown',
+    name: '单臂绳索下拉',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'barbell-curl',
+    name: '杠铃二头弯举',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱二头肌'],
+    equipment: ['杠铃'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'cable-curl',
+    name: '绳索二头弯举',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱二头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'hammer-curl',
+    name: '锤式弯举',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱二头肌'],
+    equipment: ['哑铃'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
+  },
+  {
+    id: 'overhead-cable-triceps-extension',
+    name: '颈后绳索下拉',
+    aliases: [],
+    primaryMuscle: '手臂',
+    secondaryMuscles: ['肱三头肌'],
+    equipment: ['龙门架'],
+    category: '力量',
+    difficulty: '入门',
+    metrics: '次',
+    video: ''
   }
 ];

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>训练历史 · 947fitness</title>
+<meta name="description" content="每一天是一枚环：闭合的是你确认过的一天，开口的是还开着的那一天。">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="947fitness · 训练历史">
+<meta property="og:description" content="一页看完这个月：哪天练了、哪天断了、今天还开着。">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <h1><a href="index.html"><span class="brand-mark">947</span><span class="brand-text">fitness</span></a></h1>
+    <nav class="site-nav">
+      <a href="index.html">今日训练</a>
+      <a href="history.html" class="active">训练历史</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+  <div class="ledger-layout">
+
+    <!-- 铭牌：挖出来的凹槽，数字刻在里面 -->
+    <section class="ledger">
+      <h1 class="ledger-title">训练历史</h1>
+      <p class="ledger-range" id="ledger-range"></p>
+      <div class="ledger-nums" id="ledger-nums"></div>
+      <p class="ledger-cmp" id="ledger-cmp"></p>
+    </section>
+
+    <!-- 区间：本月 / 本年 / 全部 -->
+    <section class="ledger-side">
+      <div class="range-switch" id="range-switch"></div>
+      <p class="ledger-legend" id="ledger-legend"></p>
+      <a class="ledger-back" href="index.html">回到今天的训练</a>
+    </section>
+
+  </div>
+
+  <!-- 主区：月 = 环历，年 = 12 栏柱阵，全部 = 年份清单 -->
+  <section class="board" id="board" aria-live="polite"></section>
+
+  <!-- 点开某一天，那天的清单就地展开 -->
+  <section class="sheet" id="sheet" hidden></section>
+
+  <!-- 重量销轨 -->
+  <section class="rails" id="rails"></section>
+
+  <!-- 清除：按当前区间（本月 / 本年 / 全部）。没有记录时这一段是空的 -->
+  <section class="history-danger" id="danger"></section>
+
+  <p class="history-note">
+    这里的数据只存在这台设备、这个浏览器里，不会上传到任何服务器。
+    换设备或清理浏览器数据都会让它消失。
+  </p>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>
+      免责声明：本站内容仅供参考，不构成医疗或训练处方建议。训练请根据自身恢复能力和
+      健康状况调整，出现疼痛请立即停止并咨询专业人士。
+    </p>
+  </div>
+</footer>
+
+<script src="exercises.js"></script>
+<script src="search-core.js"></script>
+<script src="history.js"></script>
+<script src="history-page.js"></script>
+</body>
+</html>

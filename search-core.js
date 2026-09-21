@@ -46,7 +46,10 @@ window.FIT = (function () {
     '胳膊': '手臂', '二头肌': '手臂', '三头肌': '手臂',
     '练手臂': '手臂', '瘦手臂': '手臂',
     '减脂': '有氧', '燃脂': '有氧', '心肺': '有氧', '跑步': '有氧',
-    '练全身': '全身', '瘦身': '全身'
+    '练全身': '全身', '瘦身': '全身',
+
+    // 器械的旧叫法 → 数据里的正式值（正式值统一用「龙门架」）
+    '拉力器': '龙门架'
   };
 
   // 把一个关键词展开成若干等价写法，任意一种命中都算命中
@@ -154,12 +157,11 @@ window.FIT = (function () {
        tone      配色 0–7
      -------------------------------------------------------------------- */
   var GROUPS = [
-    { key: 'chest',    label: '练胸',     noun: '胸部', emoji: '🏋️', muscles: ['胸'],       tone: 0 },
-    { key: 'back',     label: '练背',     noun: '背部', emoji: '🧗', muscles: ['背'],       tone: 1 },
-    { key: 'shoulder', label: '练肩',     noun: '肩部', emoji: '🤸', muscles: ['肩'],       tone: 2 },
-    { key: 'leg',      label: '练腿',     noun: '腿部', emoji: '🦵', muscles: ['腿', '臀'], tone: 3 },
-    { key: 'core',     label: '练核心',   noun: '核心', emoji: '🔥', muscles: ['核心'],     tone: 4 },
-    { key: 'cardio',   label: '有氧训练', noun: '有氧', emoji: '🏃', category: '有氧',      tone: 5 }
+    { key: 'chest',    label: '练胸',   noun: '胸部', emoji: '🏋️', muscles: ['胸'],   tone: 0 },
+    { key: 'back',     label: '练背',   noun: '背部', emoji: '🧗', muscles: ['背'],   tone: 1 },
+    { key: 'shoulder', label: '练肩',   noun: '肩部', emoji: '🤸', muscles: ['肩'],   tone: 2 },
+    { key: 'leg',      label: '练腿',   noun: '腿部', emoji: '🦵', muscles: ['腿'],   tone: 3 },
+    { key: 'core',     label: '练核心', noun: '核心', emoji: '🔥', muscles: ['核心'], tone: 4 }
   ];
 
   // 判断一个动作是否属于某个大类；传 null 表示全部
